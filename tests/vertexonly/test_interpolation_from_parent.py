@@ -84,7 +84,6 @@ def pseudo_random_coords(size):
 
 # NOTE: these _spatialcoordinate tests should be equivalent to some kind of
 # interpolation from a CG1 VectorFunctionSpace (I think)
-@pytest.mark.xfail
 def test_scalar_spatialcoordinate_interpolation(parentmesh, vertexcoords):
     vm = VertexOnlyMesh(parentmesh, vertexcoords)
     vertexcoords = vm.coordinates.dat.data_ro
@@ -96,7 +95,6 @@ def test_scalar_spatialcoordinate_interpolation(parentmesh, vertexcoords):
     assert np.allclose(w_expr.dat.data_ro, np.sum(vertexcoords, axis = 1))
 
 
-@pytest.mark.xfail
 def test_scalar_function_interpolation(parentmesh, vertexcoords, fs):
     vm = VertexOnlyMesh(parentmesh, vertexcoords)
     vertexcoords = vm.coordinates.dat.data_ro
@@ -111,7 +109,6 @@ def test_scalar_function_interpolation(parentmesh, vertexcoords, fs):
     assert np.allclose(w_v.dat.data_ro, np.sum(vertexcoords, axis = 1))
 
 
-@pytest.mark.xfail
 def test_vector_spatialcoordinate_interpolation(parentmesh, vertexcoords):
     vm = VertexOnlyMesh(parentmesh, vertexcoords)
     vertexcoords = vm.coordinates.dat.data_ro
@@ -121,7 +118,6 @@ def test_vector_spatialcoordinate_interpolation(parentmesh, vertexcoords):
     assert np.allclose(w_expr.dat.data_ro, 2*np.asarray(vertexcoords))
 
 
-@pytest.mark.xfail
 def test_vector_function_interpolation(parentmesh, vertexcoords, vfs):
     vm = VertexOnlyMesh(parentmesh, vertexcoords)
     vfs_fam, vfs_deg, vfs_typ = vfs
@@ -133,7 +129,6 @@ def test_vector_function_interpolation(parentmesh, vertexcoords, vfs):
     assert np.allclose(w_v.dat.data_ro, 2*np.asarray(vertexcoords))
 
 
-@pytest.mark.xfail
 def test_tensor_spatialcoordinate_interpolation(parentmesh, vertexcoords):
     vm = VertexOnlyMesh(parentmesh, vertexcoords)
     vertexcoords = vm.coordinates.dat.data_ro
@@ -145,7 +140,6 @@ def test_tensor_spatialcoordinate_interpolation(parentmesh, vertexcoords):
     assert np.allclose(w_expr.dat.data_ro, result)
 
 
-@pytest.mark.xfail
 def test_tensor_function_interpolation(parentmesh, vertexcoords, tfs):
     vm = VertexOnlyMesh(parentmesh, vertexcoords)
     vertexcoords = vm.coordinates.dat.data_ro
