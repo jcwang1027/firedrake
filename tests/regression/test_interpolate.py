@@ -97,23 +97,6 @@ def test_tensor():
     assert np.allclose(g.dat.data, h.dat.data)
 
 
-def test_tensor():
-    mesh = UnitSquareMesh(2, 2)
-    x = SpatialCoordinate(mesh)
-    U = TensorFunctionSpace(mesh, 'P', 2)
-    V = TensorFunctionSpace(mesh, 'CG', 3)
-
-    c = as_tensor(((Constant(2.0), x[1]), (x[0], x[0] * x[1])))
-
-    f = interpolate(c, U)
-    g = interpolate(f, V)
-
-    # g shall be equivalent to:
-    h = interpolate(c, V)
-
-    assert np.allclose(g.dat.data, h.dat.data)
-
-
 def test_constant_expression():
     m = UnitTriangleMesh()
     x = SpatialCoordinate(m)
