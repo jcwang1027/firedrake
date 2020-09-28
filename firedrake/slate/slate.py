@@ -223,7 +223,7 @@ class TensorBase(object, metaclass=ABCMeta):
     def T(self):
         return Transpose(self)
 
-    def solve(self, B, decomposition=None):
+    def solve(self, B, decomposition=None, matfree=False):
         """Solve a system of equations with
         a specified right-hand side.
 
@@ -236,7 +236,7 @@ class TensorBase(object, metaclass=ABCMeta):
             available matrix decompositions are outlined in
             :class:`Factorization`.
         """
-        return Solve(self, B, decomposition=decomposition)
+        return Solve(self, B, decomposition=decomposition, matfree=matfree)
 
     @cached_property
     def blocks(self):
@@ -834,8 +834,8 @@ class Inverse(UnaryOp):
             "The inverse can only be computed on square tensors."
         )
 
-        if A.shape > (4, 4) and not isinstance(A, Factorization):
-            A = Factorization(A, decomposition="PartialPivLU")
+        # if A.shape > (4, 4) and not isinstance(A, Factorization):
+        #     A = Factorization(A, decomposition="PartialPivLU")
 
         super(Inverse, self).__init__(A)
 
@@ -1066,8 +1066,8 @@ class Solve(BinaryOp):
         # For matrices smaller than 5x5, exact formulae can be used
         # to evaluate the inverse. Otherwise, this class will trigger
         # a factorization method in the code-generation.
-        if A.shape < (5, 5):
-            return A.inv * B
+        # if A.shape < (5, 5):
+        #     return A.inv * B
 
         return super().__new__(cls)
 
@@ -1099,7 +1099,8 @@ class Solve(BinaryOp):
         """
         return self._args
 
-    def is_matrixfree(self):
+    @cached_property
+    def is_matfree(self):
         return self._matfree
 
 
