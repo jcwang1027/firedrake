@@ -1043,9 +1043,10 @@ class Solve(BinaryOp):
     :arg decomposition: A string denoting the type of matrix decomposition
         to used. The factorizations available are detailed in the
         :class:`Factorization` documentation.
+    :arg matfree: True when the local solve operates matrix-free.
     """
 
-    def __new__(cls, A, B, decomposition=None):
+    def __new__(cls, A, B, decomposition=None, matfree=False):
         assert A.rank == 2, "Operator must be a matrix."
 
         # Same rules for performing multiplication on Slate tensors
@@ -1070,7 +1071,7 @@ class Solve(BinaryOp):
 
         return super().__new__(cls)
 
-    def __init__(self, A, B, decomposition=None):
+    def __init__(self, A, B, decomposition=None, matfree=False):
         """Constructor for the Solve class."""
 
         # LU with partial pivoting is a stable default.
@@ -1083,6 +1084,7 @@ class Solve(BinaryOp):
 
         self._args = A_factored.arguments()[::-1][:-1] + B.arguments()[1:]
         self._arg_fs = [arg.function_space() for arg in self._args]
+        self._matfree = matfree
 
     @cached_property
     def arg_function_spaces(self):
@@ -1096,6 +1098,9 @@ class Solve(BinaryOp):
         from applying the inverse of A onto B.
         """
         return self._args
+
+    def is_matrixfree(self):
+        return self._matfree
 
 
 def space_equivalence(A, B):
