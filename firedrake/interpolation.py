@@ -205,21 +205,11 @@ def make_interpolator(expr, V, subset, access):
 
 @utils.known_pyop2_safe
 def _interpolator(V, tensor, expr, subset, arguments, access):
-    from tsfc.finatinterface import create_element as create_finat_element
-
-    if not isinstance(expr, firedrake.Expression):
-        try:
-            element = create_finat_element(V.ufl_element())
-        except KeyError:
-            # FInAT only elements
-            raise NotImplementedError("Don't know how to create FInAT element for %s" % V.ufl_element())
-        print(element)
-    else:
-        try:
-            element = create_element(V.ufl_element())
-        except KeyError:
-            # FIAT only elements
-            raise NotImplementedError("Don't know how to create FIAT element for %s" % V.ufl_element())
+    try:
+        to_element = create_base_element(V.ufl_element())
+    except KeyError:
+        # FInAT only elements
+        raise NotImplementedError("Don't know how to create FIAT element for %s" % V.ufl_element())
 
     if access is op2.READ:
         raise ValueError("Can't have READ access for output function")
@@ -238,18 +228,18 @@ def _interpolator(V, tensor, expr, subset, arguments, access):
     if not isinstance(expr, firedrake.Expression):
         if expr.ufl_domain() and expr.ufl_domain() != V.mesh():
             raise NotImplementedError("Interpolation onto another mesh not supported.")
-        ast, oriented, needs_cell_sizes, coefficients, _ = compile_expression_dual_evaluation(expr, element, coords, coffee=False)
-        kernel = op2.Kernel(ast, ast.name)
+        ast, oriented, needs_cell_sizes, coefficients, _ = compile_expression_dual_evaluation(expr, to_element, coords,
+                                                                                              domain=V.mesh(), coffee=False)
+        kernel = op2.Kernel(ast, ast.name, requires_zeroed_output_arguments=True)
     elif hasattr(expr, "eval"):
         to_pts = []
-        # For FIAT elements
-        for dual in element.dual_basis():
+        for dual in to_element.dual_basis():
             if not isinstance(dual, FIAT.functional.PointEvaluation):
                 raise NotImplementedError("Can only interpolate Python kernels with Lagrange elements")
             pts, = dual.pt_dict.keys()
             to_pts.append(pts)
 
-        kernel, oriented, needs_cell_sizes, coefficients = compile_python_kernel(expr, to_pts, element, V, coords)
+        kernel, oriented, needs_cell_sizes, coefficients = compile_python_kernel(expr, to_pts, to_element, V, coords)
     else:
         raise RuntimeError("Attempting to evaluate an Expression which has no value.")
 

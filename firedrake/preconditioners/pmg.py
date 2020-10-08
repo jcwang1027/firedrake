@@ -259,14 +259,14 @@ def prolongation_transfer_kernel_aij(Pk, P1):
     # P1 to remind you that P1 is of lower degree
     # than Pk
     from tsfc import compile_expression_dual_evaluation
-    from tsfc.finatinterface import create_element
+    from tsfc.finatinterface import create_base_element
     from firedrake import TestFunction
 
     expr = TestFunction(P1)
     coords = Pk.ufl_domain().coordinates
-    element = create_element(Pk.ufl_element())
+    to_element = create_base_element(Pk.ufl_element())
 
-    ast, oriented, needs_cell_sizes, coefficients, _ = compile_expression_dual_evaluation(expr, element, coords, coffee=False)
+    ast, oriented, needs_cell_sizes, coefficients, _ = compile_expression_dual_evaluation(expr, to_element, coords, coffee=False)
     kernel = op2.Kernel(ast, ast.name)
     return kernel
 
